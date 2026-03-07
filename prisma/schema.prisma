@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  REP
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(REP)
+  hubspotId String?  @unique
+  deals     Deal[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommissionPlan {
+  id              String   @id @default(cuid())
+  title           String
+  baseRate        Float
+  threshold       Float
+  acceleratorRate Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Deal {
+  id               String   @id @default(cuid())
+  hubspotDealId    String   @unique
+  dealName         String?
+  amount           Float
+  stage            String
+  closeDate        DateTime
+  ownerId          String
+  owner            User     @relation(fields: [ownerId], references: [id])
+  commissionEarned Float    @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
